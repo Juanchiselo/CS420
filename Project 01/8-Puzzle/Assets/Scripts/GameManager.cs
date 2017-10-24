@@ -78,7 +78,10 @@ public class GameManager : MonoBehaviour
             Debug.Log("Puzzle is valid!");
 
             if (EightPuzzle.IsSolvable(puzzleStateInputField.text))
+            {
                 Debug.Log("Puzzle is solvable!");
+                EightPuzzle.Solve();
+            }
             else
                 Debug.Log("Puzzle is not solvable!");
 
@@ -87,6 +90,16 @@ public class GameManager : MonoBehaviour
             Debug.Log("Puzzle is not valid!");
 
     }
+
+    //private int[] ParsePuzzleState(string puzzleState)
+    //{
+    //    int[] puzzleStateArray = new int[puzzleState.Length];
+
+    //    for (int i = 0; i < puzzleState.Length; i++)
+    //        puzzleStateArray[i] = int.Parse(puzzleState[i].ToString());
+
+    //    return puzzleStateArray;
+    //}
 
     public void StartGame()
     {
