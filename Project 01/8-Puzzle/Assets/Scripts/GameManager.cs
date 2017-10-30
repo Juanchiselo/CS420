@@ -17,7 +17,8 @@ public class GameManager : MonoBehaviour
     public float elapsedTime = 0.0f;
     public GameState gameState = GameState.Stop;
     public int moves = 0;
-
+    private int[,] board = new int[3, 3];
+    private GameObject[] tiles = new GameObject[9];
     public GameObject emptyTile = null;
 
     // Input Fields
@@ -28,15 +29,18 @@ public class GameManager : MonoBehaviour
     [Header("Text")]
     public Text timer = null;
     public Text movesCounter = null;
+    public Text isSolvable = null;
 
     // Buttons
     [Header("Buttons")]
     public Button startButton = null;
     public Button stopButton = null;
-
+    
     // Use this for initialization
     void Start ()
     {
+        for(int i = 0; i < tiles.Length; i++)
+            tiles[i] = GameObject.Find(i.ToString());
     }
 	
 	// Update is called once per frame
@@ -63,32 +67,47 @@ public class GameManager : MonoBehaviour
                     movesCounter.text = moves.ToString();
                     MoveTile(hit.transform.gameObject);
                 }
-                Debug.Log(hit.transform.gameObject.name);
             }
         }
     }
 
     public void SolveButtonClick()
     {
-        //puzzleStateInputField = GameObject.Find("Puzzle State").GetComponent<InputField>();
-
-
         if (EightPuzzle.IsPuzzleValid(puzzleStateInputField.text))
         {
             Debug.Log("Puzzle is valid!");
 
             if (EightPuzzle.IsSolvable(puzzleStateInputField.text))
             {
-                Debug.Log("Puzzle is solvable!");
+                isSolvable.text = "Yes";
                 EightPuzzle.Solve();
             }
             else
-                Debug.Log("Puzzle is not solvable!");
+                isSolvable.text = "No";
 
         }
         else
             Debug.Log("Puzzle is not valid!");
 
+    }
+
+    public void SetBoard()
+    {
+        string puzzleState = puzzleStateInputField.text;
+
+        for (int i = 0; i < tiles.Length; i++)
+        {
+            if (puzzleState[i] != '0')
+            {
+                tiles[i].GetComponent<SpriteRenderer>().sprite
+                = Resources.Load<Sprite>("Sprites/" + puzzleState[i].ToString());
+            }
+            else
+            {
+                tiles[i].GetComponent<SpriteRenderer>().sprite = null;
+                emptyTile = tiles[i];
+            }
+        }
     }
 
     //private int[] ParsePuzzleState(string puzzleState)
@@ -106,6 +125,10 @@ public class GameManager : MonoBehaviour
         gameState = GameState.Playing;
         startButton.gameObject.SetActive(false);
         stopButton.gameObject.SetActive(true);
+
+        SetBoard();
+        AStar aStar = new AStar(puzzleStateInputField.text, "012345678");
+        aStar.Search(1);
     }
 
     public void StopGame()
@@ -117,36 +140,8 @@ public class GameManager : MonoBehaviour
 
     private void MoveTile(GameObject clickedTile)
     {
-        Debug.Log("X: " + clickedTile.gameObject.transform.position.x
-            + " - Y: " + clickedTile.gameObject.transform.position.y);
-        Debug.Log("eX: " + emptyTile.gameObject.transform.position.x
-            + " - eY: " + emptyTile.gameObject.transform.position.y);
-        Debug.Log("Modified x: " + (clickedTile.gameObject.transform.position.x - 1.6).ToString());
-
-        if (emptyTile.transform.position.x == (clickedTile.gameObject.transform.position.x - 1.6)
-            && emptyTile.transform.position.y == clickedTile.gameObject.transform.position.y)
-        {
-            Debug.Log("X: " + clickedTile.gameObject.transform.position.x
-            + " - Y: " + clickedTile.gameObject.transform.position.y);
-            Debug.Log("Clicked tile is on the left.");
-        }
-        //else if (clickedTile.gameObject.transform.position.x - 1.6 == emptyTile.transform.position.x)
-        //{
-        //    Debug.Log("X: " + clickedTile.gameObject.transform.position.x
-        //    + " - Y: " + clickedTile.gameObject.transform.position.y);
-        //    Debug.Log("Clicked tile is on the right.");
-        //}
-        //else if (clickedTile.gameObject.transform.position.y - 1.6 == emptyTile.transform.position.y)
-        //{
-        //    Debug.Log("X: " + clickedTile.gameObject.transform.position.x
-        //    + " - Y: " + clickedTile.gameObject.transform.position.y);
-        //    Debug.Log("Clicked tile is above.");
-        //}
-        //else if (clickedTile.gameObject.transform.position.y - 1.6 == emptyTile.transform.position.y)
-        //{
-        //    Debug.Log("X: " + clickedTile.gameObject.transform.position.x
-        //    + " - Y: " + clickedTile.gameObject.transform.position.y);
-        //    Debug.Log("Clicked tile is below.");
-        //}
+        Vector3 temporaryPosition = clickedTile.transform.position;
+        clickedTile.transform.position = emptyTile.transform.position;
+        emptyTile.transform.position = temporaryPosition;
     }
 }

@@ -57,20 +57,16 @@ public sealed class EightPuzzle
 
         for(int i = 0; i < puzzleStateArray.Length; i++)
         {
-            for(int j = i + 1; j < puzzleStateArray.Length; j++)
+            if (!(puzzleStateArray[i] == 0))
             {
-                Debug.Log("I: " + puzzleStateArray[i] + " - J: " + puzzleStateArray[j]);
-                if ((puzzleStateArray[i] == 0 || puzzleStateArray[j] == 0))
-                    break;
-
-                if(puzzleStateArray[i] > puzzleStateArray[j])
-                    inversions++;
-
-                Debug.Log("Inversions: " + inversions);
+                for (int j = i + 1; j < puzzleStateArray.Length; j++)
+                {
+                    if (!(puzzleStateArray[j] == 0))
+                        if (puzzleStateArray[i] > puzzleStateArray[j])
+                            inversions++;
+                }
             }
         }
-
-        Debug.Log("Total Inversions: " + inversions);
 
         return inversions;
     }
